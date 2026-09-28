@@ -7,9 +7,9 @@
 
 [Project Specifications](2025%20web-project-specs.pdf) | [Database Schema](database.sql) | [Source Code](var/www/)
 
-This repository contains the design, implementation, and security hardening of **SecureMusiciansHub** (SNH), a secure web platform for musicians to share lyrics and audio tracks. Built using native PHP and MySQL without external frameworks or template engines, the application enforces defense-in-depth principles against modern web attack vectors.
+This repository contains the design and implementation of **SecureMusiciansHub**, a secure web platform for musicians to share lyrics and audio tracks. Built using native PHP and MySQL without external frameworks or template engines, the application enforces defense-in-depth principles against modern web attack vectors.
 
-The project was developed for the **System and Network Hacking** (SNH) course (Master of Science in Computer Engineering / Cybersecurity, **Università di Pisa**), Academic Year 2025–2026.
+The project was developed for the **System and Network Hacking** (SNH) course (Master of Science in Computer Engineering, **Università di Pisa**), Academic Year 2025–2026.
 
 ---
 
@@ -35,7 +35,6 @@ Key capabilities of the system include:
 | System Component | Technology / Mechanism | Specification / Details |
 | :--- | :---: | :--- |
 | **Backend Environment** | Native PHP 8.x | Procedural and OOP architecture without external frameworks |
-| **Database Engine** | MySQL 8.0+ / MariaDB 10.5+ | InnoDB engine, `utf8mb4_unicode_ci` collation, Foreign Keys |
 | **Web Server** | Apache HTTP Server (2.4+) | Virtual host configuration with public/private directory isolation |
 | **Authentication & Hashing** | Bcrypt (`PASSWORD_DEFAULT`) | One-way salted hashing with strict password complexity requirements |
 | **Session Hardening** | PHP Session Management | `SameSite=Strict`, `HttpOnly`, `use_only_cookies`, 10-minute TTL guard |
@@ -73,25 +72,6 @@ The system separates routable web assets from internal business logic, database 
 - **Audit Storage (`var/www/logs/`)**: Write-only directory for the web server process containing timestamped daily logs (`security-report-YYYYMMDD.log`).
 
 ### 3. Account Lifecycle & Token Management
-
-```text
-                  +-------------------+
-                  |   Registration    |
-                  +---------+---------+
-                            |
-                   (Activation Token)
-                            v
-+--------------+  Activate   +-------------------+
-| Locked State | <---------  |    Active User    |
-+-------+------+   (>=10     +----+---------+----+
-        |         Failures)       |         |
- (Unlock Token)                   |    (Recovery Token)
-        |                         |         |
-        v                         v         v
-+-------+------+             +----+---------+----+
-| Active User  |             |  Password Reset   |
-+--------------+             +-------------------+
-```
 
 - **Account Activation**: Newly registered users are stored in `pending_users` with a 32-byte cryptographically secure token. Activation links expire after 24 hours.
 - **Account Lockout & Unlocking**: When consecutive failed login attempts reach 10, the account is locked and an unlock token (72-hour validity) is dispatched to the user's registered email.
